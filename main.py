@@ -1,10 +1,24 @@
-from flask import Flask, render_template
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
-app = Flask(__name__)
+hostName = "localhost"
+serverPort = 8080
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+class MyServer(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        with open("templates/index.html", "r", encoding="utf-8") as file:
+            self.wfile.write(bytes(file.read(), "utf-8"))
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    webServer = HTTPServer((hostName, serverPort), MyServer)
+    print(f"Server started http://{hostName}:{serverPort}")
+
+    try:
+        webServer.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+    webServer.server_close()
+    print("Server stopped.")
